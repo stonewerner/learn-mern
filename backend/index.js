@@ -85,7 +85,23 @@ app.put("/projects/:id", async (req, res) => {
         console.log(error.message);
         res.status(500).send({ message: error.message});
     }
-})
+});
+
+// Route to delete a project
+app.delete("/projects/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await Project.findByIdAndDelete(id);
+        if (!result) {
+            return res.status(404).json({ message: "Project not found"});
+        }
+        return res.status(200).send({ message: "Project deleted successfully"});
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: error.message});
+    }
+});
 
 mongoose
     .connect(mongoDBURL)

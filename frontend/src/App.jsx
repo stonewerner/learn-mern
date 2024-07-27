@@ -1,7 +1,7 @@
 import React from 'react'
 import {Routes, Route} from 'react-router-dom'
 import Home from './pages/Home';
-import CreateProject from './pages/CreateProject';
+import CreateProject from './pages/CreateProjects';
 import ShowProject from './pages/ShowProject';
 import DeleteProject from './pages/DeleteProject';
 import EditProject from './pages/EditProject';
@@ -18,4 +18,4 @@ const App = () => {
   )
 }
 
-export default App
+export default App;

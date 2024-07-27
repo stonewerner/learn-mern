@@ -62,6 +62,29 @@ app.get("/projects/:id", async (req, res) => {
         console.log(error.message);
         res.status(500).send({ message: error.message});
     }
+});
+
+// Route to update a project
+app.put("/projects/:id", async (req, res) => {
+    try {
+        if (
+            !req.body.title || //all the required fields in model
+            !req.body.state
+        ) {
+            return res.status(400).send({
+                message: "Project title and state required."
+            });
+        }
+        const { id } = req.params;
+        const result = await Project.findByIdAndUpdate(id, req.body);
+        if (!result) {
+            return res.status(404).json({ message: "Project not found"});
+        }
+        return res.status(200).send({ message: "Project updated successfully"});
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: error.message});
+    }
 })
 
 mongoose

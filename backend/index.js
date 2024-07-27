@@ -2,9 +2,23 @@ import express from "express";
 import { PORT, mongoDBURL } from "./config.js";
 import mongoose from "mongoose";
 import { Project } from "./models/projectModel.js";
+import projectRoute from "./routes/projectRoute.js";
+import cors from "cors";
 
 const app = express();
 app.use(express.json()); //convert body of all requests to json
+
+app.use(cors()); //default is to allow all origins
+
+//other cors option
+//app.use(
+//    cors({
+//        origin: 'http://localhost:3000',
+//        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//        allowedHeaders: ['Content-Type'],
+//    })
+//);
+
 
 // Route root
 app.get("/", (req, res) => {
@@ -12,96 +26,8 @@ app.get("/", (req, res) => {
     return res.status(200).send("Welcome!");
 });
 
-// Route to create a project
-app.post("/projects", async (req, res) => {
-    try {
-        if (
-            !req.body.title || //all the required fields in model
-            !req.body.state
-        ) {
-            return res.status(400).send({
-                message: "Project title and state required."
-            });
-        }
-        const newProject = {
-            title: req.body.title,
-            state: req.body.state,
-            notes: req.body.notes,
-        };
-        const project = await Project.create(newProject);
-        return res.status(200).send(project);
-        
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ message: error.message});
-    }
-});
+app.use("/projects", projectRoute); //our middleware to use your project routes
 
-// Route to get all projects
-app.get("/projects", async (req, res) => {
-    try {
-        const projects = await Project.find({});
-        return res.status(200).json({
-            count: projects.length,
-            data: projects
-        });
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ message: error.message});
-    }
-});
-
-// Route to get a single project by id
-app.get("/projects/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const project = await Project.findById(id);
-        return res.status(200).json(project);
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ message: error.message});
-    }
-});
-
-// Route to update a project
-app.put("/projects/:id", async (req, res) => {
-    try {
-        if (
-            !req.body.title || //all the required fields in model
-            !req.body.state
-        ) {
-            return res.status(400).send({
-                message: "Project title and state required."
-            });
-        }
-        const { id } = req.params;
-        const result = await Project.findByIdAndUpdate(id, req.body);
-        if (!result) {
-            return res.status(404).json({ message: "Project not found"});
-        }
-        return res.status(200).send({ message: "Project updated successfully"});
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ message: error.message});
-    }
-});
-
-// Route to delete a project
-app.delete("/projects/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const result = await Project.findByIdAndDelete(id);
-        if (!result) {
-            return res.status(404).json({ message: "Project not found"});
-        }
-        return res.status(200).send({ message: "Project deleted successfully"});
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send({ message: error.message});
-    }
-});
 
 mongoose
     .connect(mongoDBURL)
